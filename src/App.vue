@@ -1,85 +1,65 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <div
+    class="w-full h-full relative overflow-hidden"
+    :class="{
+      dark: theme === 'dark',
+    }"
+  >
+    <RouterView />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+<script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { RouterView } from 'vue-router';
+import { useStore } from './stores/index';
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+const store = useStore();
 
-nav {
+const { theme } = storeToRefs(store);
+</script>
+
+<style lang="postcss">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("assets/fonts/Gilroy-Bold.otf");
+  font-display: block;
+  font-weight: bold;
+}
+html, body, #app {
+  position: relative;
   width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  height: 100%;
+  overflow: hidden;
+}
+html, body, button, input, textarea {
+  font-size: 16px;
+  font-family: Gilroy;
+  font-weight: normal;
+}
+input,
+textarea,
+button,
+select,
+a {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+*, input::placeholder, textarea::placeholder {
+  transition-property: color, opacity, background-color, box-shadow, fill, border-color;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

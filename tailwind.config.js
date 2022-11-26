@@ -1,8 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [],
+  darkMode: 'class',
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts}",
+  ],
   theme: {
-    extend: {},
+    extend: {
+      transitionDuration: {
+        DEFAULT: '300ms',
+      },
+      transitionTimingFunction: {
+        DEFAULT: 'ease',
+      },
+    },
   },
   plugins: [],
 }
