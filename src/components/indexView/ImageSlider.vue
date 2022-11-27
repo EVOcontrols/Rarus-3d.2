@@ -12,7 +12,7 @@
           v-for="(img, i) in images.dark"
           :src="img"
           :key="`dark${i}`"
-          class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
+          class=" absolute h-full w-full object-cover"
           :class="{
             invisible: i !== imageIndex,
           }"
@@ -27,7 +27,7 @@
           v-for="(img, i) in images.light"
           :src="img"
           :key="`dark${i}`"
-          class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
+          class="absolute h-full w-full object-cover"
           :class="{
             invisible: i !== imageIndex,
           }"

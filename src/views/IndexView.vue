@@ -26,7 +26,7 @@
         />
       </Transition>
       <div
-        class="flex flex-row justify-between items-center mt-16 z-[1]">
+        class="flex flex-row justify-between items-center mt-8 z-[1]">
         <h1 class="text-xl leading-5 pl-8">
           <span class="text-black dark:text-white">
             FX3D
@@ -52,7 +52,7 @@
           v-if="allImagesAreLoaded"
           @click="nextSlideTrigger = Math.random()"
           type="button"
-          class="p-4 absolute bottom-40 z-[1] right-7">
+          class="p-4 absolute bottom-[1.31rem] z-[1] right-7">
           <img
             src="@/assets/img/arrow-right.svg"
             class="h-5"
@@ -62,7 +62,7 @@
       <Transition name="fade">
         <ThemeSwitcher
           v-if="allImagesAreLoaded"
-          class="absolute left-8 bottom-[10.625rem]" />
+          class="absolute left-8 bottom-8" />
       </Transition>
     </div>
   </div>
