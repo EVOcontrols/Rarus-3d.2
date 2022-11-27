@@ -9,7 +9,7 @@ Theme = Literal['dark', 'light']
 targetWidth = 700
 imagesPath = '../../public/slides'
 targetFolder = f'{imagesPath}/medium'
-themes: list[str] = ['dark', 'light']
+themes: list[Theme] = ['dark', 'light']
 
 def resize_image(filePath: str, theme: Theme):
   image = Image.open(filePath)
@@ -27,10 +27,12 @@ def go():
   os.mkdir(f'{targetFolder}/dark')
   os.mkdir(f'{targetFolder}/light')
   # resize_image(5, 're')
-  for theme in ['dark', 'light']:
+  for theme in themes:
     files = glob.glob(f'{imagesPath}/full-size/{theme}/*')
     for file in files:
       resize_image(file, theme)
+      # break
+    # break
 
-
+go()
 # print(os.path.basename(files[0]))
