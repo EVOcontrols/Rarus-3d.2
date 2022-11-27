@@ -7,8 +7,8 @@
     <template v-for="themeImages, t in images" :key="t">
       <img
         v-for="(img, i) in themeImages"
-        :src="img.src"
-        :key="img.src"
+        :src="img"
+        :key="img"
         class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
         :class="{
           'opacity-0': t !== theme,
@@ -31,7 +31,7 @@ const props = defineProps({
     required: true,
   },
   images: {
-    type: Object as PropType<{ dark: HTMLImageElement[], light: HTMLImageElement[] }>,
+    type: Object as PropType<{ dark: string[], light: string[] }>,
     required: true,
   },
   imageCount: {
