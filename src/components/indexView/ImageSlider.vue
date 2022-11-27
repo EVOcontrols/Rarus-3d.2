@@ -3,20 +3,37 @@
     @touchstart.stop.prevent="touchHandler"
     @touchmove.stop.prevent="moveHandler"
     @touchend="endHandler"
-    class="absolute  top-0 bottom-0 left-0 right-0">
-    <template v-for="themeImages, t in images" :key="t">
-      <img
-        v-for="(img, i) in themeImages"
-        :src="img"
-        :key="`${t}${i}`"
-        class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
-        :class="{
-          'opacity-0': t !== theme,
-          invisible: t !== theme || i !== imageIndex,
-          'transition-[opacity,visibility] duration-500': !isMoving,
-        }"
-        alt="">
-    </template>
+    class="absolute top-0 bottom-0 left-0 right-0">
+    <Transition name="fade">
+      <div
+        class="absolute top-0 bottom-0 left-0 right-0"
+        v-show="theme === 'dark'">
+        <img
+          v-for="(img, i) in images.dark"
+          :src="img"
+          :key="`dark${i}`"
+          class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
+          :class="{
+            invisible: i !== imageIndex,
+          }"
+          alt="">
+      </div>
+    </Transition>
+    <Transition name="fade">
+      <div
+        class="absolute top-0 bottom-0 left-0 right-0"
+        v-show="theme === 'light'">
+        <img
+          v-for="(img, i) in images.light"
+          :src="img"
+          :key="`dark${i}`"
+          class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
+          :class="{
+            invisible: i !== imageIndex,
+          }"
+          alt="">
+      </div>
+    </Transition>
   </div>
 </template>
 

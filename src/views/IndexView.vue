@@ -37,7 +37,7 @@
         </h1>
         <Transition name="fade">
           <button
-            v-if="allImagesAreLoaded"
+            v-show="allImagesAreLoaded"
             type="button"
             class="mr-10">
             <img
