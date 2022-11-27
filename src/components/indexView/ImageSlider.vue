@@ -8,7 +8,7 @@
       <img
         v-for="(img, i) in themeImages"
         :src="img"
-        :key="img"
+        :key="`${t}${i}`"
         class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
         :class="{
           'opacity-0': t !== theme,
@@ -67,6 +67,7 @@ const isMoving = ref(false);
 const lastImageIndex = props.imageCount - 1;
 
 function touchHandler(e: TouchEvent) {
+  if (isMoving.value) return;
   isMoving.value = true;
   if (moveTimer) clearTimeout(moveTimer);
   isTouch = true;
