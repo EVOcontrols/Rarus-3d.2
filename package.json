@@ -12,6 +12,7 @@
   "dependencies": {
     "@splidejs/vue-splide": "^0.6.12",
     "pinia": "^2.0.23",
+    "pixi.js": "^7.1.0-alpha",
     "swiper": "^8.4.5",
     "vue": "^3.2.41",
     "vue-router": "^4.1.5"

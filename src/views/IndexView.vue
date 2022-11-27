@@ -48,20 +48,21 @@
         </Transition>
       </div>
       <Transition name="fade">
-        <div
+        <button
           v-if="allImagesAreLoaded"
-          class="flex flex-row justify-between items-center mb-40 z-[1]">
-          <ThemeSwitcher class="ml-8" />
-          <button
-            @click="nextSlideTrigger = Math.random()"
-            type="button"
-            class="mr-7 p-4">
-            <img
-              src="@/assets/img/arrow-right.svg"
-              class="h-5"
-              alt="">
-          </button>
-        </div>
+          @click="nextSlideTrigger = Math.random()"
+          type="button"
+          class="p-4 absolute bottom-40 z-[1] right-7">
+          <img
+            src="@/assets/img/arrow-right.svg"
+            class="h-5"
+            alt="">
+        </button>
+      </Transition>
+      <Transition name="fade">
+        <ThemeSwitcher
+          v-if="allImagesAreLoaded"
+          class="absolute left-8 bottom-[10.625rem]" />
       </Transition>
     </div>
   </div>
