@@ -1,64 +1,148 @@
 <template>
-  <Swiper
-    ref="swiperEl"
-    class=" !absolute  top-0 bottom-0 left-0 right-0"
-    @progress="progressHandler"
-  >
-    <swiper-slide>Slide 1</swiper-slide>
-    <swiper-slide>Slide 2</swiper-slide>
-    <swiper-slide>Slide 3</swiper-slide>
-    <swiper-slide>Slide 4</swiper-slide>
-    <img
-      :src="images[index]?.src"
-      class="absolute m-auto top-0 bottom-0 left-0 right-0 w-full"
-      alt="">
-  </Swiper>
+  <div
+    @touchstart.stop.prevent="touchHandler"
+    @touchmove.stop.prevent="moveHandler"
+    @touchend="endHandler"
+    class="absolute  top-0 bottom-0 left-0 right-0">
+    <template v-for="themeImages, t in images" :key="t">
+      <img
+        v-for="(img, i) in themeImages"
+        :src="img.src"
+        :key="img.src"
+        class="absolute m-auto top-0 bottom-0 left-0 right-0 h-full"
+        :class="{
+          'opacity-0': t !== theme,
+          invisible: t !== theme || i !== imageIndex,
+          'transition-[opacity,visibility] duration-500': !isMoving,
+        }"
+        alt="">
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Swiper, SwiperSlide, useSwiper } from 'swiper/vue';
-
-import 'swiper/css';
-import { ref, watch } from 'vue';
+import { useStore } from '@/stores/index';
+import { storeToRefs } from 'pinia';
+import { ref, watch, type PropType } from 'vue';
 
 const props = defineProps({
   nextSlideTrigger: {
     type: Number,
     required: true,
   },
+  images: {
+    type: Object as PropType<{ dark: HTMLImageElement[], light: HTMLImageElement[] }>,
+    required: true,
+  },
+  imageCount: {
+    type: Number,
+    required: true,
+  },
 });
 
-const images = ref<HTMLImageElement[]>([]);
+const store = useStore();
 
-const index = ref(0);
+const { theme } = storeToRefs(store);
 
-const swiper = useSwiper();
+const imageIndex = ref(0);
 
-watch(() => props.nextSlideTrigger, () => {
-  swiper.value.slideNext();
-});
+const viewWidth = document.body.clientWidth;
 
-async function loadImages() {
-  new Array(73).fill(null).reduce((acc, v, i) => (
-    acc.then(() => new Promise((res) => {
-      const image = new Image();
-      image.onload = () => {
-        images.value.push(image);
-        res(null);
-      };
-      image.src = `/slides/white/${10000 + i}.jpg`;
-    }))
-  ), Promise.resolve(null));
+const slideNum = ref(0);
+
+const touchStartX = ref(0);
+
+let touchStartY = 0;
+
+let isTouch = false;
+
+let direction: 'left' | 'right' = 'left';
+
+let moveTimer: ReturnType<typeof setTimeout> | undefined;
+
+let isHorizontalMoving: boolean | undefined;
+
+const isMoving = ref(false);
+
+const lastImageIndex = props.imageCount - 1;
+
+function touchHandler(e: TouchEvent) {
+  isMoving.value = true;
+  if (moveTimer) clearTimeout(moveTimer);
+  isTouch = true;
+  touchStartX.value = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
 }
 
-await loadImages();
+function moveHandler(e: TouchEvent) {
+  if (isHorizontalMoving === false) return;
+  if (isHorizontalMoving === undefined) {
+    const diffX = touchStartX.value - e.touches[0].clientX;
+    const diffY = touchStartY - e.touches[0].clientY;
+    if (Math.abs(diffY) > Math.abs(diffX)) {
+      if (diffX < 1) return;
+      isHorizontalMoving = false;
+      return;
+    }
+    isHorizontalMoving = true;
+  }
+  direction = touchStartX.value > e.touches[0].clientX ? 'left' : 'right';
+  const progress = (touchStartX.value - e.touches[0].clientX) / viewWidth;
+  const index = Math.round((progress + slideNum.value) * 24);
+  if (index < 0) {
+    imageIndex.value = 0;
+  } else if (index > lastImageIndex) {
+    imageIndex.value = lastImageIndex;
+  } else {
+    imageIndex.value = index;
+  }
+}
 
-function progressHandler(e: any, progress: number) {
-  const newIndex = Math.round((72 * progress));
-  if (newIndex > 72 || newIndex < 0) {
-    console.log(newIndex);
+function move(delay: number, index: number, increment: number) {
+  const shouldStop = isTouch || imageIndex.value === lastImageIndex || imageIndex.value === 0;
+  if (shouldStop) {
+    isMoving.value = false;
     return;
   }
-  index.value = newIndex;
+  imageIndex.value += increment;
+  if (imageIndex.value !== index) {
+    moveTimer = setTimeout(() => {
+      move(delay, index, increment);
+    }, delay);
+  } else {
+    setTimeout(() => {
+      isMoving.value = false;
+    }, 100);
+  }
 }
+
+function endHandler() {
+  isTouch = false;
+  if (isHorizontalMoving === false) {
+    isHorizontalMoving = undefined;
+    isMoving.value = false;
+    return;
+  }
+  isHorizontalMoving = undefined;
+  const increment = direction === 'left' ? 1 : -1;
+  const targetSlideNum = slideNum.value + increment;
+  const targetIndex = targetSlideNum * 24;
+  const doNoNeedToMoveFurther = targetIndex > lastImageIndex
+    || targetIndex < 0
+    || imageIndex.value === lastImageIndex
+    || imageIndex.value === 0;
+  if (doNoNeedToMoveFurther) {
+    isMoving.value = false;
+    return;
+  }
+  move(300 / 24, targetIndex, increment);
+  slideNum.value = targetSlideNum;
+}
+
+watch(() => props.nextSlideTrigger, () => {
+  if (imageIndex.value === lastImageIndex) return;
+  direction = 'left';
+  imageIndex.value += 1;
+  endHandler();
+});
 </script>

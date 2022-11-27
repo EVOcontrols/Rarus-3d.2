@@ -2,11 +2,29 @@
   <div
     class=" w-full h-full bg-[#eaeaea] dark:bg-[#070707]"
   >
-    <Suspense>
+    <Transition name="fade" mode="out-in">
       <div
+        v-if="!allImagesAreLoaded"
+        class=" absolute left-0 right-0 top-0 bottom-0 h-1 my-auto mx-8 rounded
+          overflow-hidden bg-[#d5d5d5] dark:bg-[#070707]"
+      >
+        <div
+          class=" h-full bg-[#070707] dark:bg-[#eaeaea] transition-[width]"
+          :style="{
+            width: `${imagesLoadingProgress * 100}%`,
+          }"
+        />
+      </div>
+      <div
+        v-else
         class=" w-full h-full flex flex-col justify-between"
       >
-        <ImageSliderThree :next-slide-trigger="nextSlideTrigger" />
+        <ImageSliderThree
+          v-if="allImagesAreLoaded"
+          :images="images"
+          :image-count="imageCount"
+          :next-slide-trigger="nextSlideTrigger"
+        />
         <div
           class="flex flex-row justify-between items-center mt-16 z-[1]">
           <h1 class="text-xl leading-5 pl-8">
@@ -37,16 +55,48 @@
           </button>
         </div>
       </div>
-    </Suspense>
+    </Transition>
   </div>
 </template>
 
 <script lang="ts" setup>
-// import ImageSlider from '@/components/indexView/ImageSlider.vue';
-// import ImageSliderTwo from '@/components/indexView/ImageSliderTwo.vue';
-import ImageSliderThree from '@/components/indexView/ImageSliderThree.vue';
+import ImageSliderThree from '@/components/indexView/ImageSlider.vue';
 import ThemeSwitcher from '@/components/indexView/ThemeSwitcher.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const nextSlideTrigger = ref(0);
+
+const imageCount = 73;
+
+const images = ref<{ dark: HTMLImageElement[], light: HTMLImageElement[] }>({
+  dark: [],
+  light: [],
+});
+
+const allImagesAreLoaded = ref(false);
+
+const imagesLoadingProgress = computed(() => (
+  (images.value.dark.length + images.value.light.length) / (imageCount * 2)
+));
+
+async function loadImages() {
+  const promises: Promise<null>[] = [];
+  (['dark', 'light'] as const).forEach((type) => {
+    new Array(imageCount).fill(null).forEach((v, i) => {
+      const promise = new Promise<null>((res) => {
+        const image = new Image();
+        image.onload = () => {
+          images.value[type][i] = image;
+          res(null);
+        };
+        image.src = `/slides/${type}/${10000 + i}.jpg`;
+      });
+      promises.push(promise);
+    });
+  });
+  await Promise.all(promises);
+  allImagesAreLoaded.value = true;
+}
+
+loadImages();
 </script>
