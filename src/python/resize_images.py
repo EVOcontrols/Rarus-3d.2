@@ -7,7 +7,7 @@ from typing import Literal
 Theme = Literal['dark', 'light']
 
 targetWidth = 700
-imagesPath = '../../public/slides'
+imagesPath = '../../public/slides/page2'
 targetFolder = f'{imagesPath}/medium'
 themes: list[Theme] = ['dark', 'light']
 

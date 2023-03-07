@@ -93,7 +93,7 @@ async function loadImages() {
   (['dark', 'light'] as const).forEach((type) => {
     new Array(imageCount).fill(null).forEach((v, i) => {
       const promise = new Promise<null>((res) => {
-        fetch(`/slides/medium-less/${type}/${10000 + i}.jpg`)
+        fetch(`/slides/page1/medium-less/${type}/${10000 + i}.jpg`)
           .then((response) => response.blob())
           .then((blob) => {
             images.value[type][i] = URL.createObjectURL(blob);
