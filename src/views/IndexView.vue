@@ -2,7 +2,7 @@
   <div class="w-full h-full bg-[#eaeaea] dark:bg-[#070707]">
     <div class="w-full h-full flex flex-col justify-between">
       <div
-        class="absolute top-0 left-0 h-full w-full overflow-y-auto snap-y snap-mandatory flex flex-col"
+        class="absolute top-0 left-0 h-full w-full overflow-y-auto snap-y snap-mandatory flex flex-col no-scroll"
         ref="scrollEl"
         @touchstart="touchStartHandler"
         @touchend="touchendHandler"
@@ -162,3 +162,9 @@ watch(
   { immediate: true }
 );
 </script>
+<style lang="postcss">
+.no-scroll::-webkit-scrollbar {
+  display: none;
+  appearance: none;
+}
+</style>
