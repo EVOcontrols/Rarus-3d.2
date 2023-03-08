@@ -3,6 +3,10 @@
     "vue.volar",
     "vue.vscode-typescript-vue-plugin",
     "ms-python.vscode-pylance",
-    "ms-python.python"
+    "ms-python.python",
+    "bradlc.vscode-tailwindcss",
+    "csstools.postcss",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
   ]
 }

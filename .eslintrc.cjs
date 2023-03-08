@@ -7,6 +7,7 @@ module.exports = {
     'plugin:vue/vue3-essential',
     'eslint:recommended',
     '@vue/eslint-config-airbnb-with-typescript',
+    'prettier',
   ],
   parserOptions: {
     ecmaVersion: 'latest',

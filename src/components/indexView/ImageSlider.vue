@@ -1,7 +1,7 @@
 <template>
   <div
-    @touchstart.stop.prevent="touchHandler"
-    @touchmove.stop.prevent="moveHandler"
+    @touchstart="touchHandler"
+    @touchmove="moveHandler"
     @touchend="endHandler"
     class="absolute top-0 bottom-0 left-0 right-0">
     <Transition name="fade">
@@ -55,6 +55,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  pageNum: {
+    type: Number,
+    required: true
+  }
 });
 
 const store = useStore();
