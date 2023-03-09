@@ -3,26 +3,30 @@
     @touchstart="touchHandler"
     @touchmove="moveHandler"
     @touchend="endHandler"
-    class="absolute top-0 bottom-0 left-0 right-0">
+    class="absolute top-0 bottom-0 left-0 right-0"
+  >
     <Transition name="fade">
       <div
         class="absolute top-0 bottom-0 left-0 right-0"
-        v-show="theme === 'dark'">
+        v-show="theme === 'dark'"
+      >
         <img
           v-for="(img, i) in images.dark"
           :src="img"
           :key="`dark${i}`"
-          class=" absolute h-full w-full object-cover"
+          class="absolute h-full w-full object-cover"
           :class="{
             invisible: i !== imageIndex,
           }"
-          alt="">
+          alt=""
+        />
       </div>
     </Transition>
     <Transition name="fade">
       <div
         class="absolute top-0 bottom-0 left-0 right-0"
-        v-show="theme === 'light'">
+        v-show="theme === 'light'"
+      >
         <img
           v-for="(img, i) in images.light"
           :src="img"
@@ -31,7 +35,8 @@
           :class="{
             invisible: i !== imageIndex,
           }"
-          alt="">
+          alt=""
+        />
       </div>
     </Transition>
   </div>
@@ -48,7 +53,7 @@ const props = defineProps({
     required: true,
   },
   images: {
-    type: Object as PropType<{ dark: string[], light: string[] }>,
+    type: Object as PropType<{ dark: string[]; light: string[] }>,
     required: true,
   },
   imageCount: {
@@ -57,9 +62,14 @@ const props = defineProps({
   },
   pageNum: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 });
+
+const emit = defineEmits<{
+  (e: 'isHorizontalMovingChange', isHorizontalMoving?: boolean): void;
+  (e: 'changeIsLastSlide', isLastSlide: boolean): void;
+}>();
 
 const store = useStore();
 
@@ -81,7 +91,7 @@ let direction: 'left' | 'right' = 'left';
 
 let moveTimer: ReturnType<typeof setTimeout> | undefined;
 
-let isHorizontalMoving: boolean | undefined;
+const isHorizontalMoving = ref<boolean | undefined>();
 
 const isMoving = ref(false);
 
@@ -97,16 +107,16 @@ function touchHandler(e: TouchEvent) {
 }
 
 function moveHandler(e: TouchEvent) {
-  if (isHorizontalMoving === false) return;
-  if (isHorizontalMoving === undefined) {
+  if (isHorizontalMoving.value === false) return;
+  if (isHorizontalMoving.value === undefined) {
     const diffX = touchStartX.value - e.touches[0].clientX;
     const diffY = touchStartY - e.touches[0].clientY;
     if (Math.abs(diffY) > Math.abs(diffX)) {
       if (diffX < 1) return;
-      isHorizontalMoving = false;
+      isHorizontalMoving.value = false;
       return;
     }
-    isHorizontalMoving = true;
+    isHorizontalMoving.value = true;
   }
   direction = touchStartX.value > e.touches[0].clientX ? 'left' : 'right';
   const progress = (touchStartX.value - e.touches[0].clientX) / viewWidth;
@@ -134,25 +144,27 @@ function move(delay: number, index: number, increment: number) {
   } else {
     setTimeout(() => {
       isMoving.value = false;
+      emit('changeIsLastSlide', imageIndex.value === lastImageIndex);
     }, 100);
   }
 }
 
 function endHandler() {
   isTouch = false;
-  if (isHorizontalMoving === false) {
-    isHorizontalMoving = undefined;
+  if (isHorizontalMoving.value === false) {
+    isHorizontalMoving.value = undefined;
     isMoving.value = false;
     return;
   }
-  isHorizontalMoving = undefined;
+  isHorizontalMoving.value = undefined;
   const increment = direction === 'left' ? 1 : -1;
   const targetSlideNum = slideNum.value + increment;
   const targetIndex = targetSlideNum * 24;
-  const doNoNeedToMoveFurther = targetIndex > lastImageIndex
-    || targetIndex < 0
-    || imageIndex.value === lastImageIndex
-    || imageIndex.value === 0;
+  const doNoNeedToMoveFurther =
+    targetIndex > lastImageIndex ||
+    targetIndex < 0 ||
+    imageIndex.value === lastImageIndex ||
+    imageIndex.value === 0;
   if (doNoNeedToMoveFurther) {
     isMoving.value = false;
     return;
@@ -161,10 +173,22 @@ function endHandler() {
   slideNum.value = targetSlideNum;
 }
 
-watch(() => props.nextSlideTrigger, () => {
-  if (imageIndex.value === lastImageIndex) return;
-  direction = 'left';
-  imageIndex.value += 1;
-  endHandler();
+watch(
+  () => props.nextSlideTrigger,
+  () => {
+    if (imageIndex.value === lastImageIndex) {
+      imageIndex.value = 0;
+      slideNum.value = 0
+      emit('changeIsLastSlide', false);
+    } else {
+      direction = 'left';
+      imageIndex.value += 1;
+      endHandler();
+    }
+  }
+);
+
+watch(isHorizontalMoving, () => {
+  emit('isHorizontalMovingChange', isHorizontalMoving.value);
 });
 </script>

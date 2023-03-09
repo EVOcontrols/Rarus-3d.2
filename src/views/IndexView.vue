@@ -6,6 +6,7 @@
         ref="scrollEl"
         @touchstart="touchStartHandler"
         @touchend="touchendHandler"
+        @touchmove="touchmoveHandler"
       >
         <div
           v-for="p in pages"
@@ -31,8 +32,10 @@
               v-else
               :images="images[p]"
               :image-count="imageCount[p]"
-              :next-slide-trigger="nextSlideTrigger"
+              :next-slide-trigger="nextSlideTrigger[p]"
               :page-num="p"
+              @is-horizontal-moving-change="isHorizontalMoving = $event"
+              @change-is-last-slide="isLastSlide[p] = $event"
             />
           </Transition>
         </div>
@@ -59,9 +62,10 @@
       <Transition name="fade">
         <button
           v-if="imagesLoadingStatus.get(currentPage) === 'loaded'"
-          @click="nextSlideTrigger = Math.random()"
+          @click="nextSlideTrigger[currentPage] = Math.random()"
           type="button"
-          class="p-4 absolute bottom-[1.31rem] z-[1] right-7"
+          class="p-4 absolute bottom-[1.31rem] z-[1] right-7 transform transition-all origin-center"
+          :class="{'rotate-180': isLastSlide[currentPage]}"
         >
           <img
             src="@/assets/img/arrow-right.svg"
@@ -85,13 +89,15 @@ import ImageSlider from '@/components/indexView/ImageSlider.vue';
 import ThemeSwitcher from '@/components/indexView/ThemeSwitcher.vue';
 import { computed, ref, watch } from 'vue';
 
-const nextSlideTrigger = ref(0);
-
 const pages: [1, 2] = [1, 2];
 
 type PageNum = (typeof pages)[number];
 
+const nextSlideTrigger = ref<Record<PageNum, number>>({ 1: 0, 2: 0 });
+
 const currentPage = ref<PageNum>(1);
+
+const isHorizontalMoving = ref<boolean | undefined>();
 
 const imageCount: Record<PageNum, number> = { 1: 73, 2: 145 };
 
@@ -108,6 +114,12 @@ const images = ref<Record<PageNum, { dark: string[]; light: string[] }>>({
 
 const imagesLoadingStatus = ref<Map<PageNum, 'loading' | 'loaded'>>(new Map());
 
+const scrollEl = ref<HTMLElement | undefined>();
+
+let touchEndTimer: ReturnType<typeof setTimeout> | undefined;
+
+const isLastSlide = ref<Record<PageNum, boolean>>({1:false,2:false})
+
 const imagesLoadingProgress = computed(() =>
   pages.reduce((acc, p) => {
     const progress =
@@ -115,10 +127,6 @@ const imagesLoadingProgress = computed(() =>
     return { ...acc, [p]: progress };
   }, {} as Record<PageNum, number>)
 );
-
-const scrollEl = ref<HTMLElement | undefined>();
-
-let touchEndTimer: ReturnType<typeof setTimeout> | undefined;
 
 async function loadImages(pageNum: PageNum) {
   if (imagesLoadingStatus.value.has(pageNum)) return;
@@ -152,6 +160,12 @@ function touchendHandler() {
   touchEndTimer = setTimeout(() => {
     currentPage.value = el.scrollTop < window.innerHeight / 2 ? 1 : 2;
   }, 300);
+}
+
+function touchmoveHandler(e: Event) {
+  if (isHorizontalMoving.value === false) return;
+  if (imagesLoadingStatus.value.get(currentPage.value) !== 'loaded') return;
+  e.preventDefault();
 }
 
 watch(
